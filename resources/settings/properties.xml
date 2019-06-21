@@ -1,5 +1,16 @@
 <properties>
 
     <property id="BackgroundColor" type="number">0x000000</property>
+    <property id="LineColor" type="number">0x555555</property>
+    <property id="TimeColor" type="number">0xAAAAAA</property>
+    <property id="SecondsColor" type="number">0xAAAAAA</property>
+    <property id="DateColor" type="number">0xAAAAAA</property>
+    <property id="BatteryColor" type="number">0xAAAAAA</property>
+    <property id="BatteryLowColor" type="number">0xFF5500</property>
+    <property id="BatteryBarColor" type="number">0x00FF00</property>
+    <property id="AMPMColor" type="number">0xFFAA00</property>
+    <property id="NotificationsColor" type="number">0xAAAAAA</property>
+    <property id="DisplayNotifications" type="boolean">true</property>
+    <property id="DisplayBluetooth" type="boolean">true</property>
 
 </properties>
