@@ -18,5 +18,10 @@ class UnitApp extends Application.AppBase {
     function getInitialView() {
         return [ new UnitView() ];
     }
+    
+        // New app settings have been received so trigger a UI update
+    function onSettingsChanged() {
+        WatchUi.requestUpdate();
+    }
 
 }
