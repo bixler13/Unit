@@ -21,7 +21,6 @@ class UnitView extends WatchUi.WatchFace {
 
     function initialize() {
         WatchFace.initialize();
-        //testing
     }
 
     // Load your resources here
