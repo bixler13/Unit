@@ -3,12 +3,31 @@
     
     <string id="BackgroundColorTitle">Background Color</string>
     <string id="LineColorTitle">Line Color</string>
+    <string id="TimeColorTitle">Time Color</string>
+    <string id="SecondsColorTitle">Seconds Color</string>
+    <string id="DateColorTitle">Date Color</string>
+    <string id="BatteryColorTitle">Battery Color</string>
+    <string id="BatteryLowColorTitle">Battery Low Color</string>
+    <string id="BatteryBarColorTitle">Battery Bar Color</string>
+    <string id="AMPMColorTitle">AM PM Color</string>
+    <string id="NotificationsColorTitle">Notifications Color</string>
+    <string id="DisplayNotificationsTitle">Display Notifications?</string>
+    <string id="DisplayBluetoothTitle">Display Bluetooth Status?</string>
     
-    <string id="ColorBlack">Black</string>
-    <string id="ColorDarkGray">Dark Gray</string>
-    <string id="ColorLightGray">Light Gray</string>
     <string id="ColorWhite">White</string>
-    <string id="ColorBlue">Blue</string>
+    <string id="ColorLightGray">Light Gray</string>
+    <string id="ColorDarkGray">Dark Gray</string>
+    <string id="ColorBlack">Black</string>
     <string id="ColorRed">Red</string>
+    <string id="ColorDarkRed">Dark Red</string>
+    <string id="ColorOrange">Orange</string>
+    <string id="ColorYellow">Yellow</string>
+    <string id="ColorGreen">Green</string>
+    <string id="ColorDarkGreen">Dark Green</string>
+    <string id="ColorBlue">Blue</string>
+    <string id="ColorDarkBlue">Dark Blue</string>
+    <string id="ColorPurple">Purple</string>
+    <string id="ColorPink">Pink</string>
+    
     
 </strings>
