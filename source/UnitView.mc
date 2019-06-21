@@ -47,7 +47,7 @@ class UnitView extends WatchUi.WatchFace {
     	dc.clear();
     	
     	//draw lines
-    	dc.setColor(lineColor,Graphics.COLOR_TRANSPARENT);
+    	dc.setColor(Application.getApp().getProperty("LineColor"),Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(8);
     	dc.drawLine(0,dc.getHeight()-80,dc.getWidth(),dc.getHeight()-80);
 		dc.drawLine(0,vertSpacing,dc.getWidth(),vertSpacing);
@@ -94,11 +94,11 @@ class UnitView extends WatchUi.WatchFace {
       	var battery = System.getSystemStats().battery;
      	var batteryAngle = ((battery/100) * 265) - 95;
       	//draw battery arc
-		dc.setColor(backgroundColor,Graphics.COLOR_TRANSPARENT);
+		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
 		dc.fillCircle(50,dc.getHeight()-vertSpacing,38);
 		dc.setColor(Graphics.COLOR_GREEN,Graphics.COLOR_TRANSPARENT);
 		dc.drawArc(50,dc.getHeight()-vertSpacing,34,1,batteryAngle,-95);
-		dc.setColor(backgroundColor,Graphics.COLOR_TRANSPARENT);
+		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
 		dc.fillCircle(50,dc.getHeight()-vertSpacing,34);
 		
 		//draw battery number
@@ -156,7 +156,7 @@ class UnitView extends WatchUi.WatchFace {
     
     function onPartialUpdate(dc) {
     dc.setClip(200,70,30,80);
-    dc.setColor(backgroundColor,backgroundColor);
+    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
     dc.clear();
     drawSeconds(dc);
     dc.clearClip();

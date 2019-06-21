@@ -1,5 +1,6 @@
 <properties>
 
     <property id="BackgroundColor" type="number">0x000000</property>
+    <property id="LineColor" type="number">0x555555</property>
 
 </properties>
