@@ -42,7 +42,8 @@ class UnitView extends WatchUi.WatchFace {
     // Update the view
     function onUpdate(dc) {
     	dc.clearClip;
-    	dc.setColor(backgroundColor,backgroundColor);
+    	dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
+    	//dc.setColor(backgroundColor,backgroundColor);
     	dc.clear();
     	
     	//draw lines
