@@ -1,0 +1,6 @@
+<layout id="WatchFace">
+    <label id="TimeDisplay" x="center" y="center" font="Graphics.FONT_LARGE" justification="Graphics.TEXT_JUSTIFY_CENTER" color="Graphics.COLOR_BLUE" /><label
+    	id="BatteryDisplay" x="center" y="200" font="Graphics.FONT_LARGE" justification="Graphics.TEXT_JUSTIFY_CENTER" color="Graphics.COLOR_BLUE">
+</label>
+	<label id="DateDisplay" x="center" y="10" font="Graphics.FONT_SMALL" justification="Graphics.TEXT_JUSTIFY_CENTER" color="Graphics.COLOR_BLUE"></label>
+</layout>
