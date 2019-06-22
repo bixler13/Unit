@@ -1,5 +1,13 @@
 <settings>
 
+    <setting propertyKey="@Properties.DisplayNotifications" title="@Strings.DisplayNotificationsTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    
+    <setting propertyKey="@Properties.DisplayBluetooth" title="@Strings.DisplayBluetoothTitle">
+        <settingConfig type="boolean" />
+    </setting>
+
     <setting propertyKey="@Properties.BackgroundColor" title="@Strings.BackgroundColorTitle">
         <settingConfig type="list">
         	<listEntry value="0xFFFFFF">@Strings.ColorWhite</listEntry>
@@ -190,12 +198,112 @@
         </settingConfig>
     </setting>
     
-    <setting propertyKey="@Properties.DisplayNotifications" title="@Strings.DisplayNotificationsTitle">
-        <settingConfig type="boolean" />
+    <setting propertyKey="@Properties.DataField1Color" title="@Strings.DataField1ColorTitle">
+        <settingConfig type="list">
+        	<listEntry value="0xFFFFFF">@Strings.ColorWhite</listEntry>
+        	<listEntry value="0xAAAAAA">@Strings.ColorLightGray</listEntry>
+        	<listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
+            <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
+            <listEntry value="0xFF0000">@Strings.ColorRed</listEntry>
+            <listEntry value="0xAA0000">@Strings.ColorDarkRed</listEntry>
+            <listEntry value="0xFF5500">@Strings.ColorOrange</listEntry>
+            <listEntry value="0xFFAA00">@Strings.ColorYellow</listEntry>
+            <listEntry value="0x00FF00">@Strings.ColorGreen</listEntry>
+            <listEntry value="0x00AA00">@Strings.ColorDarkGreen</listEntry>
+            <listEntry value="0x00AAFF">@Strings.ColorBlue</listEntry>
+            <listEntry value="0x0000FF">@Strings.ColorDarkBlue</listEntry>
+            <listEntry value="0xAA00FF">@Strings.ColorPurple</listEntry>
+            <listEntry value="0xFF00FF">@Strings.ColorPink</listEntry>    
+        </settingConfig>
     </setting>
     
-    <setting propertyKey="@Properties.DisplayBluetooth" title="@Strings.DisplayBluetoothTitle">
-        <settingConfig type="boolean" />
+    <setting propertyKey="@Properties.DataField2Color" title="@Strings.DataField2ColorTitle">
+        <settingConfig type="list">
+        	<listEntry value="0xFFFFFF">@Strings.ColorWhite</listEntry>
+        	<listEntry value="0xAAAAAA">@Strings.ColorLightGray</listEntry>
+        	<listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
+            <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
+            <listEntry value="0xFF0000">@Strings.ColorRed</listEntry>
+            <listEntry value="0xAA0000">@Strings.ColorDarkRed</listEntry>
+            <listEntry value="0xFF5500">@Strings.ColorOrange</listEntry>
+            <listEntry value="0xFFAA00">@Strings.ColorYellow</listEntry>
+            <listEntry value="0x00FF00">@Strings.ColorGreen</listEntry>
+            <listEntry value="0x00AA00">@Strings.ColorDarkGreen</listEntry>
+            <listEntry value="0x00AAFF">@Strings.ColorBlue</listEntry>
+            <listEntry value="0x0000FF">@Strings.ColorDarkBlue</listEntry>
+            <listEntry value="0xAA00FF">@Strings.ColorPurple</listEntry>
+            <listEntry value="0xFF00FF">@Strings.ColorPink</listEntry>    
+        </settingConfig>
+    </setting>
+   
+    <setting propertyKey="@Properties.DataField3Color" title="@Strings.DataField3ColorTitle">
+        <settingConfig type="list">
+        	<listEntry value="0xFFFFFF">@Strings.ColorWhite</listEntry>
+        	<listEntry value="0xAAAAAA">@Strings.ColorLightGray</listEntry>
+        	<listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
+            <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
+            <listEntry value="0xFF0000">@Strings.ColorRed</listEntry>
+            <listEntry value="0xAA0000">@Strings.ColorDarkRed</listEntry>
+            <listEntry value="0xFF5500">@Strings.ColorOrange</listEntry>
+            <listEntry value="0xFFAA00">@Strings.ColorYellow</listEntry>
+            <listEntry value="0x00FF00">@Strings.ColorGreen</listEntry>
+            <listEntry value="0x00AA00">@Strings.ColorDarkGreen</listEntry>
+            <listEntry value="0x00AAFF">@Strings.ColorBlue</listEntry>
+            <listEntry value="0x0000FF">@Strings.ColorDarkBlue</listEntry>
+            <listEntry value="0xAA00FF">@Strings.ColorPurple</listEntry>
+            <listEntry value="0xFF00FF">@Strings.ColorPink</listEntry>    
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.DataField1" title="@Strings.DataField1Title">
+        <settingConfig type="list">
+        	<listEntry value="1">@Strings.Steps</listEntry>
+        	<listEntry value="2">@Strings.StepGoal</listEntry>
+        	<listEntry value="3">@Strings.Distance</listEntry>
+        	<listEntry value="4">@Strings.FloorsClimbed</listEntry>
+        	<listEntry value="5">@Strings.ActiveMinutesDay</listEntry>
+        	<listEntry value="6">@Strings.ActiveMinutesWeek</listEntry>
+        	<listEntry value="7">@Strings.Calories</listEntry>
+        	<listEntry value="8">@Strings.HeartRate</listEntry>
+        	<listEntry value="9">@Strings.Altitude</listEntry>
+        	<listEntry value="10">@Strings.Pressure</listEntry>
+        	<listEntry value="11">@Strings.UTCTime</listEntry>
+        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.DataField2" title="@Strings.DataField2Title">
+        <settingConfig type="list">
+        	<listEntry value="1">@Strings.Steps</listEntry>
+        	<listEntry value="2">@Strings.StepGoal</listEntry>
+        	<listEntry value="3">@Strings.Distance</listEntry>
+        	<listEntry value="4">@Strings.FloorsClimbed</listEntry>
+        	<listEntry value="5">@Strings.ActiveMinutesDay</listEntry>
+        	<listEntry value="6">@Strings.ActiveMinutesWeek</listEntry>
+        	<listEntry value="7">@Strings.Calories</listEntry>
+        	<listEntry value="8">@Strings.HeartRate</listEntry>
+        	<listEntry value="9">@Strings.Altitude</listEntry>
+        	<listEntry value="10">@Strings.Pressure</listEntry>
+        	<listEntry value="11">@Strings.UTCTime</listEntry>
+        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.DataField3" title="@Strings.DataField3Title">
+        <settingConfig type="list">
+        	<listEntry value="1">@Strings.Steps</listEntry>
+        	<listEntry value="2">@Strings.StepGoal</listEntry>
+        	<listEntry value="3">@Strings.Distance</listEntry>
+        	<listEntry value="4">@Strings.FloorsClimbed</listEntry>
+        	<listEntry value="5">@Strings.ActiveMinutesDay</listEntry>
+        	<listEntry value="6">@Strings.ActiveMinutesWeek</listEntry>
+        	<listEntry value="7">@Strings.Calories</listEntry>
+        	<listEntry value="8">@Strings.HeartRate</listEntry>
+        	<listEntry value="9">@Strings.Altitude</listEntry>
+        	<listEntry value="10">@Strings.Pressure</listEntry>
+        	<listEntry value="11">@Strings.UTCTime</listEntry>
+        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
+        </settingConfig>
     </setting>
 
 </settings>
