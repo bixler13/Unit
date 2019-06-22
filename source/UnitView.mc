@@ -17,12 +17,13 @@ var textColor = Graphics.COLOR_LT_GRAY;
 var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
 var dataIconColor = new[3];
 var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
-
+var partialUpdatesAllowed = false;
 
 class UnitView extends WatchUi.WatchFace {
 
     function initialize() {
         WatchFace.initialize();
+        partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate ); 
 		//hasHR=(ActivityMonitor has :HeartRateIterator) ? true : false; //checking device for hrm
     }
 
@@ -88,8 +89,9 @@ class UnitView extends WatchUi.WatchFace {
       	dc.drawText(97,57,digitalBig,timeString,Graphics.TEXT_JUSTIFY_CENTER);
       	
       	//draw seconds
-      	drawSeconds(dc);
-      	
+      	if(partialUpdatesAllowed){
+      		drawSeconds(dc);
+      	}
       	
       	//draw date
       	var today = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
@@ -277,6 +279,10 @@ class UnitView extends WatchUi.WatchFace {
 
     // Terminate any active timers and prepare for slow updates.
     function onEnterSleep() {
+    }
+    
+    function onPowerBudgetExceeded(powerInfo) {
+        partialUpdatesAllowed = false;
     }
 	
 }
