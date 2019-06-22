@@ -203,8 +203,8 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 3){ //Distance
-				data[i] = info.distance;
-				dataIcon[i] = "J";
+				data[i] = (info.distance)/160934;
+				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 4){ //Floorsclimbed
@@ -218,12 +218,12 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 5){ //Active Min Day
-				data[i] = info.activeMinutesDay;
+				data[i] = info.activeMinutesDay.total;
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 6){ //Active Min Week
-				data[i] = info.activeMinutesWeek;
+				data[i] = info.activeMinutesWeek.total;
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
@@ -233,27 +233,27 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 8){ //Heart Rate
-				data[i] = 8;
+				data[i] = "NA";
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 9){ //Altitude
-				data[i] = 9;
+				data[i] = "NA";
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_GREEN;
 			}
 			else if(dataType[i] == 10){ //Pressure
-				data[i] = 10;
+				data[i] = "NA";
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 11){ //UTC Time
-				data[i] = 11;
+				data[i] = "NA";
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
 			}
 			else if(dataType[i] == 12){ //Sunrise/Sunset
-				data[i] = 12;
+				data[i] = "NA";
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
 			}
