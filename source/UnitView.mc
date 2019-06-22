@@ -17,7 +17,7 @@ var textColor = Graphics.COLOR_LT_GRAY;
 var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
 var dataIconColor = new[3];
 var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
-var partialUpdatesAllowed = false;
+var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 
 class UnitView extends WatchUi.WatchFace {
 
