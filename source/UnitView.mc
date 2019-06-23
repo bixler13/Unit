@@ -5,6 +5,7 @@ using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
+using Toybox.SensorHistory;
 
 var vertSpacing = 60;
 var digitalBig = null;
@@ -13,12 +14,17 @@ var digitalMed = null;
 var digitalMicro = null;
 var icons = null;
 var textColor = Graphics.COLOR_LT_GRAY;
-
+var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
+var dataIconColor = new[3];
+var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
+var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 
 class UnitView extends WatchUi.WatchFace {
 
     function initialize() {
         WatchFace.initialize();
+        partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate ); 
+		//hasHR=(ActivityMonitor has :HeartRateIterator) ? true : false; //checking device for hrm
     }
 
     // Load your resources here
@@ -41,7 +47,6 @@ class UnitView extends WatchUi.WatchFace {
     function onUpdate(dc) {
     	dc.clearClip;
     	dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
-    	//dc.setColor(backgroundColor,backgroundColor);
     	dc.clear();
     	
     	//draw lines
@@ -56,29 +61,37 @@ class UnitView extends WatchUi.WatchFace {
 		//draw clock
       	var clockTime = System.getClockTime();
      	var hour = clockTime.hour;
-      	//drawAM/PM
+      	//drawAM/PM and correct for 24hr
       	var ampmString;
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
-      	if (hour > 12){
-      		ampmString = "PM";
-      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
-      	}
-      	else{
-      		ampmString = "AM";
-      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+      	if (!System.getDeviceSettings().is24Hour){
+	      	if (hour > 12){
+	      		hour = hour - 12;
+	      		ampmString = "PM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	}
+	      	else if(hour == 0){
+	      		hour = 12;
+	      		ampmString = "AM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	}
+	      	else{
+	      		ampmString = "AM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	}
       	}
       	
       	if (!System.getDeviceSettings().is24Hour){
-      		if (hour > 12) {
-      			hour = hour - 12;
-      		}
+
       	}
       	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]);
       	dc.setColor(Application.getApp().getProperty("TimeColor"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(97,57,digitalBig,timeString,Graphics.TEXT_JUSTIFY_CENTER);
-      	//draw seconds
-      	drawSeconds(dc);
       	
+      	//draw seconds
+      	if(partialUpdatesAllowed){
+      		drawSeconds(dc);
+      	}
       	
       	//draw date
       	var today = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
@@ -108,26 +121,6 @@ class UnitView extends WatchUi.WatchFace {
 		}
       	dc.drawText(52,160,digitalSmall,battery.format("%d")+"%",Graphics.TEXT_JUSTIFY_CENTER);
       	
-      	//draw steps
-      	var info = ActivityMonitor.getInfo();
-		var steps = info.steps;
-		var stepGoal = info.stepGoal;
-		var stepIcon = "C";
-      	dc.setColor(textColor,Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(183,162,digitalSmall,steps,Graphics.TEXT_JUSTIFY_RIGHT);
-      	dc.setColor(Graphics.COLOR_DK_GRAY,Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(200,190,digitalMicro,stepGoal,Graphics.TEXT_JUSTIFY_RIGHT);
-      	dc.setColor(Graphics.COLOR_BLUE,Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(195,167,icons,stepIcon,Graphics.TEXT_JUSTIFY_CENTER);
-      	
-      	//draw calories
-      	var calories = info.calories;
-      	var calorieIcon = "B";
-		dc.setColor(textColor,Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(155,200,digitalSmall,calories,Graphics.TEXT_JUSTIFY_RIGHT);
-      	dc.setColor(Graphics.COLOR_RED,Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(165,207,icons,calorieIcon,Graphics.TEXT_JUSTIFY_CENTER);
-      	
 		//draw bt indicator
 		if(Application.getApp().getProperty("DisplayBluetooth")){
 		var isBTConnected= System.getDeviceSettings().phoneConnected;
@@ -150,25 +143,129 @@ class UnitView extends WatchUi.WatchFace {
 				dc.drawText(122,128,icons,ntString,Graphics.TEXT_JUSTIFY_CENTER);
 			}
 		}
+		
+		//get data for data fields
+      	retriveData();
+
+		
+		//draw DataField 1
+      	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
+      	dc.drawText(183,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.setColor(dataIconColor[0],Graphics.COLOR_TRANSPARENT);
+      	dc.drawText(195,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
+      	
+      	//Draw DataField 2
+      	dc.setColor(Application.getApp().getProperty("DataField2Color"),Graphics.COLOR_TRANSPARENT);
+      	dc.drawText(155,200,digitalSmall,data[1],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.setColor(dataIconColor[1],Graphics.COLOR_TRANSPARENT);
+      	dc.drawText(165,207,icons,dataIcon[1],Graphics.TEXT_JUSTIFY_CENTER);
+      	
+      	//Draw Datafield 3
+      	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
+      	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
     }
     
     function onPartialUpdate(dc) {
-    dc.setClip(200,70,30,80);
-    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
-    dc.clear();
-    drawSeconds(dc);
-    dc.clearClip();
+	    dc.setClip(200,70,30,80);
+	    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
+	    dc.clear();
+	    drawSeconds(dc);
+	    dc.clearClip();
     }
     
     function drawSeconds(dc){
-    var clockTime2 = System.getClockTime();
-    var second = Lang.format("$1$", [clockTime2.sec.format("%02d")]);
-    var second1 = second.substring(0,1);
-    var second2 = second.substring(1,2);
-     dc.setColor(Application.getApp().getProperty("SecondsColor"),Graphics.COLOR_TRANSPARENT);
-     dc.drawText(210,63,digitalMed,second1,Graphics.TEXT_JUSTIFY_CENTER);
-     dc.drawText(210,105,digitalMed,second2,Graphics.TEXT_JUSTIFY_CENTER);
+	    var clockTime2 = System.getClockTime();
+	    var second = Lang.format("$1$", [clockTime2.sec.format("%02d")]);
+	    var second1 = second.substring(0,1);
+	    var second2 = second.substring(1,2);
+	    dc.setColor(Application.getApp().getProperty("SecondsColor"),Graphics.COLOR_TRANSPARENT);
+	    dc.drawText(210,63,digitalMed,second1,Graphics.TEXT_JUSTIFY_CENTER);
+	    dc.drawText(210,105,digitalMed,second2,Graphics.TEXT_JUSTIFY_CENTER);
     }
+    
+	function retriveData(){
+	    var info = ActivityMonitor.getInfo();
+      	//var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
+      	//var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
+      	var dataType = new[3]; //array size 3 that holds value for type of data to be displayed
+      	
+		dataType[0] = Application.getApp().getProperty("DataField1");
+		dataType[1] = Application.getApp().getProperty("DataField2");
+		dataType[2] = Application.getApp().getProperty("DataField3");
+      	
+		for(var i = 0; i < 3; i++){
+			if(dataType[i] == 1){ //steps
+				data[i] = info.steps;
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_BLUE;
+			}
+			else if(dataType[i] == 2){ //Stepgoal
+				data[i] = info.stepGoal;
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_BLUE;
+			}
+			else if(dataType[i] == 3){ //Distance
+				data[i] = (info.distance)/160934;
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
+			}
+			else if(dataType[i] == 4){ //Floorsclimbed
+				if(ActivityMonitor.getInfo() has :floorsClimbed) { 
+					data[i] = info.floorsClimbed;
+				}
+				else{
+					 data[i] = "NA";
+				}
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_BLUE;
+			}
+			else if(dataType[i] == 5){ //Active Min Day
+				data[i] = info.activeMinutesDay.total;
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
+			}
+			else if(dataType[i] == 6){ //Active Min Week
+				data[i] = info.activeMinutesWeek.total;
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
+			}
+			else if(dataType[i] == 7){ //Calories
+	        	data[i] = info.calories;
+				dataIcon[i] = "B";
+				dataIconColor[i] = Graphics.COLOR_RED;
+			}
+			else if(dataType[i] == 8){ //Heart Rate
+				data[i] = "NA";
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_RED;
+			}
+			else if(dataType[i] == 9){ //Altitude
+				data[i] = "NA";
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_GREEN;
+			}
+			else if(dataType[i] == 10){ //Pressure
+				data[i] = "NA";
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_BLUE;
+			}
+			else if(dataType[i] == 11){ //UTC Time
+				data[i] = "NA";
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_WHITE;
+			}
+			else if(dataType[i] == 12){ //Sunrise/Sunset
+				data[i] = "NA";
+				dataIcon[i] = "C";
+				dataIconColor[i] = Graphics.COLOR_WHITE;
+			}
+			else{
+				break;
+			}
+		} 
+		return data;
+	}
+    
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
@@ -182,6 +279,10 @@ class UnitView extends WatchUi.WatchFace {
 
     // Terminate any active timers and prepare for slow updates.
     function onEnterSleep() {
+    }
+    
+    function onPowerBudgetExceeded(powerInfo) {
+        partialUpdatesAllowed = false;
     }
 	
 }

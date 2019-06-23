@@ -9,8 +9,14 @@
     <property id="BatteryLowColor" type="number">0xFF5500</property>
     <property id="BatteryBarColor" type="number">0x00FF00</property>
     <property id="AMPMColor" type="number">0xFFAA00</property>
+    <property id="DataField1Color" type="number">0xAAAAAA</property>
+	<property id="DataField2Color" type="number">0xAAAAAA</property>
+	<property id="DataField3Color" type="number">0x555555</property>
     <property id="NotificationsColor" type="number">0xAAAAAA</property>
     <property id="DisplayNotifications" type="boolean">true</property>
     <property id="DisplayBluetooth" type="boolean">true</property>
-
+	<property id="DataField1" type="number">1</property>
+	<property id="DataField2" type="number">7</property>
+	<property id="DataField3" type="number">2</property>
+	
 </properties>
