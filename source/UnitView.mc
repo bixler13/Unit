@@ -6,7 +6,6 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
 using Toybox.SensorHistory;
-
 var vertSpacing = 60;
 var digitalBig = null;
 var digitalSmall = null;
@@ -18,6 +17,8 @@ var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number
 var dataIconColor = new[3];
 var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
 var partialUpdatesAllowed = false; //indicator if partial updates are allowed
+var clockTime;
+var hour;
 
 class UnitView extends WatchUi.WatchFace {
 
@@ -59,8 +60,8 @@ class UnitView extends WatchUi.WatchFace {
 		
 		
 		//draw clock
-      	var clockTime = System.getClockTime();
-     	var hour = clockTime.hour;
+      	clockTime = System.getClockTime();
+     	hour = clockTime.hour;
       	//drawAM/PM and correct for 24hr
       	var ampmString;
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
@@ -150,13 +151,13 @@ class UnitView extends WatchUi.WatchFace {
 		
 		//draw DataField 1
       	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(183,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.drawText(185,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
       	dc.setColor(dataIconColor[0],Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(195,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
+      	dc.drawText(197,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
       	
       	//Draw DataField 2
       	dc.setColor(Application.getApp().getProperty("DataField2Color"),Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(155,200,digitalSmall,data[1],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.drawText(153,200,digitalSmall,data[1],Graphics.TEXT_JUSTIFY_RIGHT);
       	dc.setColor(dataIconColor[1],Graphics.COLOR_TRANSPARENT);
       	dc.drawText(165,207,icons,dataIcon[1],Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -205,8 +206,8 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 3){ //Distance
-				data[i] = (info.distance)/160934;
-				dataIcon[i] = "C";
+				data[i] = ((info.distance)/160934);
+				dataIcon[i] = "I";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 4){ //Floorsclimbed
@@ -216,17 +217,17 @@ class UnitView extends WatchUi.WatchFace {
 				else{
 					 data[i] = "NA";
 				}
-				dataIcon[i] = "C";
+				dataIcon[i] = "E";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 5){ //Active Min Day
 				data[i] = info.activeMinutesDay.total;
-				dataIcon[i] = "C";
+				dataIcon[i] = "G";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 6){ //Active Min Week
 				data[i] = info.activeMinutesWeek.total;
-				dataIcon[i] = "C";
+				dataIcon[i] = "G";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 7){ //Calories
@@ -236,27 +237,35 @@ class UnitView extends WatchUi.WatchFace {
 			}
 			else if(dataType[i] == 8){ //Heart Rate
 				data[i] = "NA";
-				dataIcon[i] = "C";
+				dataIcon[i] = "F";
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 9){ //Altitude
-				data[i] = "NA";
-				dataIcon[i] = "C";
+				if(ActivityMonitor.getInfo() has :altitude) { 
+					data[i] = info.altitude * 3.281;
+				}
+				else{
+					data[i] = "NA";
+				}
+				dataIcon[i] = "K";
 				dataIconColor[i] = Graphics.COLOR_GREEN;
 			}
 			else if(dataType[i] == 10){ //Pressure
-				data[i] = "NA";
-				dataIcon[i] = "C";
+				if(ActivityMonitor.getInfo() has :ambientPressure) { 
+					data[i] = info.ambientPressure;
+				}
+				else{
+					data[i] = "NA";
+				}
+				dataIcon[i] = "L";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 11){ //UTC Time
+				//var UTCOffset = clockTime.timeZoneOffset;
+				//var UTChour = hour - UTCOffset;
+				//var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), clockTime.min.format("%02d")]);
 				data[i] = "NA";
-				dataIcon[i] = "C";
-				dataIconColor[i] = Graphics.COLOR_WHITE;
-			}
-			else if(dataType[i] == 12){ //Sunrise/Sunset
-				data[i] = "NA";
-				dataIcon[i] = "C";
+				dataIcon[i] = "H";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
 			}
 			else{

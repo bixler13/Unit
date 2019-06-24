@@ -268,7 +268,6 @@
         	<listEntry value="9">@Strings.Altitude</listEntry>
         	<listEntry value="10">@Strings.Pressure</listEntry>
         	<listEntry value="11">@Strings.UTCTime</listEntry>
-        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
         </settingConfig>
     </setting>
     
@@ -285,7 +284,6 @@
         	<listEntry value="9">@Strings.Altitude</listEntry>
         	<listEntry value="10">@Strings.Pressure</listEntry>
         	<listEntry value="11">@Strings.UTCTime</listEntry>
-        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
         </settingConfig>
     </setting>
     
@@ -302,7 +300,6 @@
         	<listEntry value="9">@Strings.Altitude</listEntry>
         	<listEntry value="10">@Strings.Pressure</listEntry>
         	<listEntry value="11">@Strings.UTCTime</listEntry>
-        	<listEntry value="12">@Strings.SunriseSunset</listEntry>
         </settingConfig>
     </setting>
 
