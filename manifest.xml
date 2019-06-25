@@ -9,7 +9,6 @@
             <iq:product id="descentmk1"/>
             <iq:product id="fenix5"/>
             <iq:product id="fenix5plus"/>
-            <iq:product id="fenix5s"/>
             <iq:product id="fenix5splus"/>
             <iq:product id="fenix5x"/>
             <iq:product id="fenix5xplus"/>
@@ -25,10 +24,6 @@
             <iq:product id="marqcaptain"/>
             <iq:product id="marqdriver"/>
             <iq:product id="marqexpedition"/>
-            <iq:product id="vivoactive3"/>
-            <iq:product id="vivoactive3d"/>
-            <iq:product id="vivoactive3m"/>
-            <iq:product id="vivoactive3mlte"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="SensorHistory"/>
