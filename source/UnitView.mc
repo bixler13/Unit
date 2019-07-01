@@ -156,9 +156,9 @@ class UnitView extends WatchUi.WatchFace {
 		
 		//draw DataField 1
       	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(185,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.drawText(190,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
       	dc.setColor(dataIconColor[0],Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(197,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
+      	dc.drawText(202,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
       	
       	//Draw DataField 2
       	dc.setColor(Application.getApp().getProperty("DataField2Color"),Graphics.COLOR_TRANSPARENT);
@@ -214,10 +214,10 @@ class UnitView extends WatchUi.WatchFace {
 			else if(dataType[i] == 3){ //Distance
 			
 				if(Settings.distanceUnits==System.UNIT_STATUTE) { 
-					data[i]=(info.distance/160934.0).format("%.2f")+" mi"; 
+					data[i]=(info.distance/160934.0).format("%.1f")+"mi"; 
 				} 
 				else { 
-					data[i]=(info.distance/(100000.0)).format("%.2f")+" km"; 
+					data[i]=(info.distance/(100000.0)).format("%.1f")+"km"; 
 				} 
 				dataIcon[i] = "I";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
@@ -233,12 +233,12 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 5){ //Active Min Day
-				data[i] = info.activeMinutesDay.total + " min";
+				data[i] = info.activeMinutesDay.total;
 				dataIcon[i] = "G";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 6){ //Active Min Week
-				data[i] = info.activeMinutesWeek.total + " min";
+				data[i] = info.activeMinutesWeek.total;
 				dataIcon[i] = "G";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
@@ -259,7 +259,7 @@ class UnitView extends WatchUi.WatchFace {
 			}
 			else if(dataType[i] == 9){ //Altitude
 				if(ActivityMonitor.getInfo() has :altitude) {
-					altitude = info.altitude * 3.281 + " ft"; 
+					altitude = info.altitude * 3.281; 
 					data[i] = altitude;
 				}
 				else{
