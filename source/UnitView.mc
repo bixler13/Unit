@@ -263,7 +263,7 @@ class UnitView extends WatchUi.WatchFace {
 					data[i] = altitude;
 				}
 				else{
-					data[i] = altitude;
+					data[i] = "NA";
 				}
 				dataIcon[i] = "K";
 				dataIconColor[i] = Graphics.COLOR_GREEN;
