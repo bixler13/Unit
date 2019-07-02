@@ -5,6 +5,7 @@ using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
+using Toybox.Activity;
 using Toybox.SensorHistory;
 var vertSpacing = 60;
 var digitalBig = null;
@@ -20,6 +21,7 @@ var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
 var altitude = 0;
+//var pressure = 0;
 var Settings;
 
 class UnitView extends WatchUi.WatchFace {
@@ -67,6 +69,7 @@ class UnitView extends WatchUi.WatchFace {
 		//draw clock
       	clockTime = System.getClockTime();
      	hour = clockTime.hour;
+     	
       	//drawAM/PM and correct for 24hr
       	var ampmString;
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
@@ -170,7 +173,7 @@ class UnitView extends WatchUi.WatchFace {
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
       	
-      	//System.println(data);
+      	//System.println(activityInfo.ambientPressure);
     }
     
     function onPartialUpdate(dc) {
@@ -193,6 +196,7 @@ class UnitView extends WatchUi.WatchFace {
     
 	function retriveData(){
 	    var info = ActivityMonitor.getInfo();
+	    var activityInfo =  Activity.getActivityInfo();
       	var dataType = new[3]; //array size 3 that holds value for type of data to be displayed
       	
 		dataType[0] = Application.getApp().getProperty("DataField1");
@@ -258,9 +262,17 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 9){ //Altitude
-				if(ActivityMonitor.getInfo() has :altitude) {
-					altitude = info.altitude * 3.281; 
-					data[i] = altitude;
+				if(Activity.getActivityInfo() has :altitude){
+					altitude = activityInfo.altitude;
+						if(altitude != null){
+							if(Settings.elevationUnits==System.UNIT_METRIC) {
+								data[i] = altitude.format("%.0f");
+							}
+							else{
+								altitude = altitude * 3.28084;
+								data[i] = altitude.format("%.0f");
+							}
+						}	
 				}
 				else{
 					data[i] = "NA";
@@ -269,8 +281,14 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_GREEN;
 			}
 			else if(dataType[i] == 10){ //Pressure
-				if(ActivityMonitor.getInfo() has :ambientPressure) { 
-					data[i] = info.ambientPressure;
+				if(Activity.getActivityInfo() has :ambientPressure) { 
+					pressure = activityInfo.ambientPressure;
+					if (pressure == null){
+						pressure = 0;
+					}
+					else{
+						data[i] = pressure;
+					}
 				}
 				else{
 					data[i] = "NA";
