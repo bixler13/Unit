@@ -19,6 +19,8 @@ var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
 var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
+var altitude = 0;
+var Settings;
 
 class UnitView extends WatchUi.WatchFace {
 
@@ -46,6 +48,9 @@ class UnitView extends WatchUi.WatchFace {
 
     // Update the view
     function onUpdate(dc) {
+    	
+    	Settings = System.getDeviceSettings();
+    
     	dc.clearClip;
     	dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
     	dc.clear();
@@ -65,7 +70,7 @@ class UnitView extends WatchUi.WatchFace {
       	//drawAM/PM and correct for 24hr
       	var ampmString;
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
-      	if (!System.getDeviceSettings().is24Hour){
+      	if (!Settings.is24Hour){
 	      	if (hour > 12){
 	      		hour = hour - 12;
 	      		ampmString = "PM";
@@ -82,7 +87,7 @@ class UnitView extends WatchUi.WatchFace {
 	      	}
       	}
       	
-      	if (!System.getDeviceSettings().is24Hour){
+      	if (!Settings.is24Hour){
 
       	}
       	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]);
@@ -151,9 +156,9 @@ class UnitView extends WatchUi.WatchFace {
 		
 		//draw DataField 1
       	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(185,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
+      	dc.drawText(190,162,digitalSmall,data[0],Graphics.TEXT_JUSTIFY_RIGHT);
       	dc.setColor(dataIconColor[0],Graphics.COLOR_TRANSPARENT);
-      	dc.drawText(197,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
+      	dc.drawText(202,167,icons,dataIcon[0],Graphics.TEXT_JUSTIFY_CENTER);
       	
       	//Draw DataField 2
       	dc.setColor(Application.getApp().getProperty("DataField2Color"),Graphics.COLOR_TRANSPARENT);
@@ -164,6 +169,8 @@ class UnitView extends WatchUi.WatchFace {
       	//Draw Datafield 3
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
+      	
+      	//System.println(data);
     }
     
     function onPartialUpdate(dc) {
@@ -186,8 +193,6 @@ class UnitView extends WatchUi.WatchFace {
     
 	function retriveData(){
 	    var info = ActivityMonitor.getInfo();
-      	//var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
-      	//var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
       	var dataType = new[3]; //array size 3 that holds value for type of data to be displayed
       	
 		dataType[0] = Application.getApp().getProperty("DataField1");
@@ -196,6 +201,7 @@ class UnitView extends WatchUi.WatchFace {
       	
 		for(var i = 0; i < 3; i++){
 			if(dataType[i] == 1){ //steps
+				//data[i] = info.steps;
 				data[i] = info.steps;
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
@@ -206,13 +212,19 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 3){ //Distance
-				data[i] = ((info.distance)/160934);
+			
+				if(Settings.distanceUnits==System.UNIT_STATUTE) { 
+					data[i]=(info.distance/160934.0).format("%.1f")+"mi"; 
+				} 
+				else { 
+					data[i]=(info.distance/(100000.0)).format("%.1f")+"km"; 
+				} 
 				dataIcon[i] = "I";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else if(dataType[i] == 4){ //Floorsclimbed
 				if(ActivityMonitor.getInfo() has :floorsClimbed) { 
-					data[i] = info.floorsClimbed;
+					data[i] = info.floorsClimbed + " floors";
 				}
 				else{
 					 data[i] = "NA";
@@ -236,13 +248,19 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 8){ //Heart Rate
-				data[i] = "NA";
+				if (ActivityMonitor has :getHeartRateHistory) {
+		  			var hrHist =  ActivityMonitor.getHeartRateHistory(1, true);
+		  			data[i] = hrHist.next().heartRate;
+				} else {
+		  			data[i] = "NA";
+				}
 				dataIcon[i] = "F";
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 9){ //Altitude
-				if(ActivityMonitor.getInfo() has :altitude) { 
-					data[i] = info.altitude * 3.281;
+				if(ActivityMonitor.getInfo() has :altitude) {
+					altitude = info.altitude * 3.281; 
+					data[i] = altitude;
 				}
 				else{
 					data[i] = "NA";
