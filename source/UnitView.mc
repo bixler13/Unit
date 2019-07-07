@@ -21,7 +21,7 @@ var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
 var altitude = 0;
-//var pressure = 0;
+var pressure = 0;
 var Settings;
 
 class UnitView extends WatchUi.WatchFace {
@@ -66,7 +66,7 @@ class UnitView extends WatchUi.WatchFace {
 		dc.fillCircle(50,dc.getHeight()-vertSpacing,45);
 		
 		
-		//draw clock
+		//get clock
       	clockTime = System.getClockTime();
      	hour = clockTime.hour;
      	
@@ -173,7 +173,7 @@ class UnitView extends WatchUi.WatchFace {
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
       	
-      	//System.println(activityInfo.ambientPressure);
+      	//System.println(data);
     }
     
     function onPartialUpdate(dc) {
@@ -297,10 +297,15 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 11){ //UTC Time
-				//var UTCOffset = clockTime.timeZoneOffset;
-				//var UTChour = hour - UTCOffset;
-				//var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), clockTime.min.format("%02d")]);
-				data[i] = "NA";
+				var UTCOffset = clockTime.timeZoneOffset/3600;
+				var UTChour = hour - UTCOffset;
+				if(UTChour >= 24){
+					UTChour = UTChour - 24;
+				}
+				
+				System.println(UTChour);
+				var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), clockTime.min.format("%02d")]);
+				data[i] = UTCTimeString;
 				dataIcon[i] = "H";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
 			}
