@@ -15,8 +15,8 @@
     <property id="NotificationsColor" type="number">0xAAAAAA</property>
     <property id="DisplayNotifications" type="boolean">true</property>
     <property id="DisplayBluetooth" type="boolean">true</property>
-	<property id="DataField1" type="number">11</property>
-	<property id="DataField2" type="number">9</property>
-	<property id="DataField3" type="number">7</property>
+	<property id="DataField1" type="number">1</property>
+	<property id="DataField2" type="number">7</property>
+	<property id="DataField3" type="number">2</property>
 	
 </properties>

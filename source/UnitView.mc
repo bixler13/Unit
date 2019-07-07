@@ -7,21 +7,25 @@ using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.SensorHistory;
-var vertSpacing = 60;
+
 var digitalBig = null;
 var digitalSmall = null;
 var digitalMed = null;
 var digitalMicro = null;
 var icons = null;
-var textColor = Graphics.COLOR_LT_GRAY;
+
 var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
 var dataIconColor = new[3];
 var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
 var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
+var UTChour;
+var min;
 var altitude = 0;
+var altitudeGet = 0;
 var pressure = 0;
+var pressureGet = 0;
 var Settings;
 
 class UnitView extends WatchUi.WatchFace {
@@ -61,14 +65,22 @@ class UnitView extends WatchUi.WatchFace {
     	dc.setColor(Application.getApp().getProperty("LineColor"),Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(8);
     	dc.drawLine(0,dc.getHeight()-80,dc.getWidth(),dc.getHeight()-80);
-		dc.drawLine(0,vertSpacing,dc.getWidth(),vertSpacing);
-		dc.drawLine(180,vertSpacing,180,dc.getHeight()-80);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,45);
+		dc.drawLine(0,60,dc.getWidth(),60);
+		dc.drawLine(180,60,180,dc.getHeight()-80);
+		dc.fillCircle(50,dc.getHeight()-60,45);
 		
 		
 		//get clock
       	clockTime = System.getClockTime();
      	hour = clockTime.hour;
+     	min = clockTime.min;
+     	
+     	//get UTC time
+     	var UTCOffset = clockTime.timeZoneOffset/3600;
+		UTChour = hour - UTCOffset;
+		if(UTChour >= 24){
+			UTChour = UTChour - 24;
+		}     	
      	
       	//drawAM/PM and correct for 24hr
       	var ampmString;
@@ -89,11 +101,9 @@ class UnitView extends WatchUi.WatchFace {
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	}
       	}
-      	
-      	if (!Settings.is24Hour){
 
-      	}
-      	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]);
+		//draw big clock
+      	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), min.format("%02d")]);
       	dc.setColor(Application.getApp().getProperty("TimeColor"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(97,57,digitalBig,timeString,Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -113,20 +123,21 @@ class UnitView extends WatchUi.WatchFace {
       	//draw battery
       	var battery = System.getSystemStats().battery;
      	var batteryAngle = ((battery/100) * 265) - 95;
+     	
       	//draw battery arc
 		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,38);
+		dc.fillCircle(50,dc.getHeight()-60,38);
 		dc.setColor(Application.getApp().getProperty("BatteryBarColor"),Graphics.COLOR_TRANSPARENT);
-		dc.drawArc(50,dc.getHeight()-vertSpacing,34,1,batteryAngle,-95);
+		dc.drawArc(50,dc.getHeight()-60,34,1,batteryAngle,-95);
 		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,34);
+		dc.fillCircle(50,dc.getHeight()-60,34);
 		
 		//draw battery number
 		if (battery < 20){
-      	dc.setColor(Application.getApp().getProperty("BatteryLowColor"),Graphics.COLOR_TRANSPARENT);
+      		dc.setColor(Application.getApp().getProperty("BatteryLowColor"),Graphics.COLOR_TRANSPARENT);
       	}
       	else{
-      	dc.setColor(Application.getApp().getProperty("BatteryColor"),Graphics.COLOR_TRANSPARENT);				   
+      		dc.setColor(Application.getApp().getProperty("BatteryColor"),Graphics.COLOR_TRANSPARENT);				   
 		}
       	dc.drawText(52,160,digitalSmall,battery.format("%d")+"%",Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -155,7 +166,6 @@ class UnitView extends WatchUi.WatchFace {
 		
 		//get data for data fields
       	retriveData();
-
 		
 		//draw DataField 1
       	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
@@ -263,18 +273,19 @@ class UnitView extends WatchUi.WatchFace {
 			}
 			else if(dataType[i] == 9){ //Altitude
 				if(Activity.getActivityInfo() has :altitude){
-					altitude = activityInfo.altitude;
-						if(altitude != null){
+					altitudeGet = activityInfo.altitude;
+						if(altitudeGet != null){
 							if(Settings.elevationUnits==System.UNIT_METRIC) {
+								altitude = altitudeGet;
+								data[i] = altitude.format("%.0f");
+							} else{
+								altitude = altitudeGet * 3.28084;
 								data[i] = altitude.format("%.0f");
 							}
-							else{
-								altitude = altitude * 3.28084;
-								data[i] = altitude.format("%.0f");
-							}
+						} else{
+							data[i] =  altitude.format("%.0f");
 						}	
-				}
-				else{
+				} else{
 					data[i] = "NA";
 				}
 				dataIcon[i] = "K";
@@ -283,11 +294,12 @@ class UnitView extends WatchUi.WatchFace {
 			else if(dataType[i] == 10){ //Pressure
 				if(Activity.getActivityInfo() has :ambientPressure) { 
 					pressure = activityInfo.ambientPressure;
-					if (pressure == null){
-						pressure = 0;
+					if (pressureGet != null){
+						pressure = pressureGet;
+						data[i] = pressure.format("%.0f");
 					}
 					else{
-						data[i] = pressure;
+						data[i] = pressure.format("%.0f");
 					}
 				}
 				else{
@@ -297,14 +309,8 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 11){ //UTC Time
-				var UTCOffset = clockTime.timeZoneOffset/3600;
-				var UTChour = hour - UTCOffset;
-				if(UTChour >= 24){
-					UTChour = UTChour - 24;
-				}
 				
-				System.println(UTChour);
-				var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), clockTime.min.format("%02d")]);
+				var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), min.format("%02d")]);
 				data[i] = UTCTimeString;
 				dataIcon[i] = "H";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
