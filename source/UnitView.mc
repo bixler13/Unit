@@ -30,7 +30,7 @@ var pressure = 0;
 var pressureGet = 0;
 var latlon = null;
 var loc = null;
-var sunEvent = 0;
+var sunEvent = 1;
 var sunEventTime;
 var Settings;
 
@@ -95,11 +95,16 @@ class UnitView extends WatchUi.WatchFace {
 	      		clockHour = hour - 12;
 	      		ampmString = "PM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	}else if (hour == 12){
+	      		clockHour = hour;
+	      		ampmString = "PM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	} else if(hour == 0){
 	      		clockHour = 12;
 	      		ampmString = "AM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	} else{
+	      		clockHour = hour;
 	      		ampmString = "AM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	}
@@ -188,7 +193,7 @@ class UnitView extends WatchUi.WatchFace {
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
 
-      	//System.println(sunset);
+      	//System.println(hour);
     }
     
     function onPartialUpdate(dc) {
@@ -270,7 +275,7 @@ class UnitView extends WatchUi.WatchFace {
 		  			var hrHist =  ActivityMonitor.getHeartRateHistory(1, true);
 		  			var currentHR = hrHist.next().heartRate;
 		  			if (currentHR >= 220){
-		  				currentHR = "NA";
+		  				currentHR = "--";
 		  			}
 		  			data[i] = currentHR;
 				} else {
@@ -300,17 +305,15 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_GREEN;
 			}
 			else if(dataType[i] == 10){ //Pressure
-				if(Activity.getActivityInfo() has :ambientPressure) { 
-					pressure = activityInfo.ambientPressure;
-					if (pressureGet != null){
-						pressure = pressureGet;
-						data[i] = pressure.format("%.0f");
-					}
-					else{
-						data[i] = pressure.format("%.0f");
-					}
-				}
-				else{
+				if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getPressureHistory)) {
+				    pressureGet = Toybox.SensorHistory.getPressureHistory(null);
+				    if (pressureGet != null){
+				    pressure = pressureGet.next();
+					data[i] = (pressure.data.toFloat() / 100.0).format("%.1f");
+					} else{
+					data[i] = "NA";
+				}  
+				} else{
 					data[i] = "NA";
 				}
 				dataIcon[i] = "L";
@@ -344,32 +347,34 @@ class UnitView extends WatchUi.WatchFace {
 					var sunriseHour = timeInfoSunrise.hour;
 					var sunsetHour = timeInfoSunset.hour;
 					
-//					if(clockHour >= sunriseHour and clockHour <= sunsetHour){
-//						sunEvent = 2; //sunset
-//					} else{
-//						sunEvent = 1; //sunrise
-//					} 
-//					
-//					if (!Settings.is24Hour){
-//						if (sunriseHour > 12){
-//		      				sunriseHour = sunriseHour - 12;
-//		      			}
-//		      			if (sunsetHour > 12){
-//		      				sunsetHour = sunsetHour - 12;
-//		      			}
-//		      		}
+					if(hour > sunriseHour and hour - 1 < sunsetHour){
+						sunEvent = 1; //sunset
+					} else{
+						sunEvent = 2; //sunrise
+					} 
+				
+					if (!Settings.is24Hour){
+						if (sunriseHour > 12){
+		      				sunriseHour = sunriseHour - 12;
+		      			}
+		      			if (sunsetHour > 12){
+		      				sunsetHour = sunsetHour - 12;
+		      			}
+		      		}
 					
-					//if(sunEvent == 1){
-						//sunEventTime = Lang.format("$1$:$2$", [sunsetHour.format("%01d"), timeInfoSunset.min.format("%02d")]);
-					//} else {
+					if(sunEvent == 1){
+						sunEventTime = Lang.format("$1$:$2$", [sunsetHour.format("%01d"), timeInfoSunset.min.format("%02d")]);
+						dataIcon[i] = "M";
+					} else {
 						sunEventTime = Lang.format("$1$:$2$", [sunriseHour.format("%01d"), timeInfoSunrise.min.format("%02d")]);
-					//} 
+						dataIcon[i] = "J";
+					} 
 				} else {
+					dataIcon[i] = "J";
 					sunEventTime = "NA";
 				}
 				
 				data[i] = sunEventTime;
-				dataIcon[i] = "J";
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else{

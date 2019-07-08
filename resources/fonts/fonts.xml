@@ -3,5 +3,5 @@
 	<font id="digitalSmall" filename="digitalSmall.fnt" filter=" !'#$%?'()*+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'abcdefghijklmnopqrstuvwxyz{|}~"/>
 	<font id="digitalMed" filename="digitalMed.fnt" filter=" %-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"/>
 	<font id="digitalMicro" filename="digitalMicro.fnt" filter=" !'#$%?'()*+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'abcdefghijklmnopqrstuvwxyz{|}~"/>
-	<font id="icons" filename="icons.fnt" filter="ABCDEFGHIJKL"/>
+	<font id="icons" filename="icons.fnt" filter="ABCDEFGHIJKLM"/>
 </fonts>
