@@ -7,6 +7,7 @@ using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.SensorHistory;
+using Toybox.Position;  
 
 var digitalBig = null;
 var digitalSmall = null;
@@ -20,12 +21,17 @@ var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
 var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
+var clockHour;
 var UTChour;
 var min;
 var altitude = 0;
 var altitudeGet = 0;
 var pressure = 0;
 var pressureGet = 0;
+var latlon = null;
+var loc = null;
+var sunEvent = 0;
+var sunEventTime;
 var Settings;
 
 class UnitView extends WatchUi.WatchFace {
@@ -33,7 +39,6 @@ class UnitView extends WatchUi.WatchFace {
     function initialize() {
         WatchFace.initialize();
         partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate ); 
-		//hasHR=(ActivityMonitor has :HeartRateIterator) ? true : false; //checking device for hrm
     }
 
     // Load your resources here
@@ -87,23 +92,23 @@ class UnitView extends WatchUi.WatchFace {
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
       	if (!Settings.is24Hour){
 	      	if (hour > 12){
-	      		hour = hour - 12;
+	      		clockHour = hour - 12;
 	      		ampmString = "PM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
-	      	}
-	      	else if(hour == 0){
-	      		hour = 12;
+	      	} else if(hour == 0){
+	      		clockHour = 12;
+	      		ampmString = "AM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	} else{
 	      		ampmString = "AM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	}
-	      	else{
-	      		ampmString = "AM";
-	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
-	      	}
+      	} else{
+      		clockHour = hour;
       	}
 
 		//draw big clock
-      	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), min.format("%02d")]);
+      	var timeString = Lang.format("$1$:$2$", [clockHour.format("%02d"), min.format("%02d")]);
       	dc.setColor(Application.getApp().getProperty("TimeColor"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(97,57,digitalBig,timeString,Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -182,8 +187,8 @@ class UnitView extends WatchUi.WatchFace {
       	//Draw Datafield 3
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
-      	
-      	//System.println(data);
+
+      	//System.println(sunset);
     }
     
     function onPartialUpdate(dc) {
@@ -215,7 +220,6 @@ class UnitView extends WatchUi.WatchFace {
       	
 		for(var i = 0; i < 3; i++){
 			if(dataType[i] == 1){ //steps
-				//data[i] = info.steps;
 				data[i] = info.steps;
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
@@ -264,7 +268,11 @@ class UnitView extends WatchUi.WatchFace {
 			else if(dataType[i] == 8){ //Heart Rate
 				if (ActivityMonitor has :getHeartRateHistory) {
 		  			var hrHist =  ActivityMonitor.getHeartRateHistory(1, true);
-		  			data[i] = hrHist.next().heartRate;
+		  			var currentHR = hrHist.next().heartRate;
+		  			if (currentHR >= 220){
+		  				currentHR = "NA";
+		  			}
+		  			data[i] = currentHR;
 				} else {
 		  			data[i] = "NA";
 				}
@@ -315,13 +323,61 @@ class UnitView extends WatchUi.WatchFace {
 				dataIcon[i] = "H";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
 			}
+			else if(dataType[i] == 12){ //Next sun event
+			
+				loc = Toybox.Activity.getActivityInfo().currentLocation; 
+				
+				if(loc !=null){
+					latlon = loc.toRadians();
+				}
+				
+				if(latlon != null){
+					var sc = new SunCalc(); 
+					var now = new Time.Moment(Time.now().value()); 
+						
+					var sunriseMoment = sc.calculate(now, latlon, SUNRISE); 
+					var sunsetMoment = sc.calculate(now, latlon, SUNSET); 
+						
+					var timeInfoSunrise = Gregorian.info(sunriseMoment, Time.FORMAT_SHORT); 
+					var timeInfoSunset = Gregorian.info(sunsetMoment, Time.FORMAT_SHORT); 
+					
+					var sunriseHour = timeInfoSunrise.hour;
+					var sunsetHour = timeInfoSunset.hour;
+					
+//					if(clockHour >= sunriseHour and clockHour <= sunsetHour){
+//						sunEvent = 2; //sunset
+//					} else{
+//						sunEvent = 1; //sunrise
+//					} 
+//					
+//					if (!Settings.is24Hour){
+//						if (sunriseHour > 12){
+//		      				sunriseHour = sunriseHour - 12;
+//		      			}
+//		      			if (sunsetHour > 12){
+//		      				sunsetHour = sunsetHour - 12;
+//		      			}
+//		      		}
+					
+					//if(sunEvent == 1){
+						//sunEventTime = Lang.format("$1$:$2$", [sunsetHour.format("%01d"), timeInfoSunset.min.format("%02d")]);
+					//} else {
+						sunEventTime = Lang.format("$1$:$2$", [sunriseHour.format("%01d"), timeInfoSunrise.min.format("%02d")]);
+					//} 
+				} else {
+					sunEventTime = "NA";
+				}
+				
+				data[i] = sunEventTime;
+				dataIcon[i] = "J";
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
+			}
 			else{
 				break;
 			}
 		} 
 		return data;
 	}
-    
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from

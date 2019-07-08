@@ -46,6 +46,7 @@
     <string id="Altitude">Altitude</string>
     <string id="Pressure">Pressure</string>
     <string id="UTCTime">UTC Time</string>
+    <string id="SunEvent">Sunrise/Sunset</string>
     
     
 </strings>

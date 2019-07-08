@@ -2,6 +2,6 @@
 	<font id="digitalBig" filename="digitalBig.fnt" filter="0123456789:"/>
 	<font id="digitalSmall" filename="digitalSmall.fnt" filter=" !'#$%?'()*+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'abcdefghijklmnopqrstuvwxyz{|}~"/>
 	<font id="digitalMed" filename="digitalMed.fnt" filter=" %-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"/>
-	<font id="digitalMicro" filename="digitalMicro.fnt" filter=" !'#$%?'()*+,-./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'abcdefghijklmnopqrstuvwxyz{|}~"/>
+	<font id="digitalMicro" filename="digitalMicro.fnt" filter=" !'#$%?'()*+,-./0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'abcdefghijklmnopqrstuvwxyz{|}~"/>
 	<font id="icons" filename="icons.fnt" filter="ABCDEFGHIJKL"/>
 </fonts>
