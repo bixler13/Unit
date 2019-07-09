@@ -391,7 +391,7 @@ class UnitView extends WatchUi.WatchFace {
     }
 
     // The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep(dc) {
+    function onExitSleep() {
     }
 
     // Terminate any active timers and prepare for slow updates.
