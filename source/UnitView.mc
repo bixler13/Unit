@@ -197,11 +197,13 @@ class UnitView extends WatchUi.WatchFace {
     }
     
     function onPartialUpdate(dc) {
-	    dc.setClip(200,70,30,80);
-	    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
-	    dc.clear();
-	    drawSeconds(dc);
-	    dc.clearClip();
+    	if(partialUpdatesAllowed){
+		    dc.setClip(200,70,30,80);
+		    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
+		    dc.clear();
+		    drawSeconds(dc);
+		    dc.clearClip();
+	    }
     }
     
     function drawSeconds(dc){
@@ -391,7 +393,7 @@ class UnitView extends WatchUi.WatchFace {
     }
 
     // The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep() {
+    function onExitSleep(dc) {
     }
 
     // Terminate any active timers and prepare for slow updates.
