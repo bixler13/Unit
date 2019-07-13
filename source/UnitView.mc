@@ -5,21 +5,33 @@ using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.ActivityMonitor;
+using Toybox.Activity;
 using Toybox.SensorHistory;
-var vertSpacing = 60;
+using Toybox.Position;  
+
 var digitalBig = null;
 var digitalSmall = null;
 var digitalMed = null;
 var digitalMicro = null;
 var icons = null;
-var textColor = Graphics.COLOR_LT_GRAY;
+
 var dataIcon = new[3]; //dataIcon[1] datafield 1 icon number 
 var dataIconColor = new[3];
 var data = new[3]; //data[1] datafield 1 value, data[2], datafield 2 value...
 var partialUpdatesAllowed = false; //indicator if partial updates are allowed
 var clockTime;
 var hour;
+var clockHour;
+var UTChour;
+var min;
 var altitude = 0;
+var altitudeGet = 0;
+var pressure = 0;
+var pressureGet = 0;
+var latlon = null;
+var loc = null;
+var sunEvent = 1;
+var sunEventTime;
 var Settings;
 
 class UnitView extends WatchUi.WatchFace {
@@ -27,7 +39,6 @@ class UnitView extends WatchUi.WatchFace {
     function initialize() {
         WatchFace.initialize();
         partialUpdatesAllowed = ( Toybox.WatchUi.WatchFace has :onPartialUpdate ); 
-		//hasHR=(ActivityMonitor has :HeartRateIterator) ? true : false; //checking device for hrm
     }
 
     // Load your resources here
@@ -59,38 +70,50 @@ class UnitView extends WatchUi.WatchFace {
     	dc.setColor(Application.getApp().getProperty("LineColor"),Graphics.COLOR_TRANSPARENT);
     	dc.setPenWidth(8);
     	dc.drawLine(0,dc.getHeight()-80,dc.getWidth(),dc.getHeight()-80);
-		dc.drawLine(0,vertSpacing,dc.getWidth(),vertSpacing);
-		dc.drawLine(180,vertSpacing,180,dc.getHeight()-80);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,45);
+		dc.drawLine(0,60,dc.getWidth(),60);
+		dc.drawLine(180,60,180,dc.getHeight()-80);
+		dc.fillCircle(50,dc.getHeight()-60,45);
 		
 		
-		//draw clock
+		//get clock
       	clockTime = System.getClockTime();
      	hour = clockTime.hour;
+     	min = clockTime.min;
+     	
+     	//get UTC time
+     	var UTCOffset = clockTime.timeZoneOffset/3600;
+		UTChour = hour - UTCOffset;
+		if(UTChour >= 24){
+			UTChour = UTChour - 24;
+		}     	
+     	
       	//drawAM/PM and correct for 24hr
       	var ampmString;
       	dc.setColor(Application.getApp().getProperty("AMPMColor"),Graphics.COLOR_TRANSPARENT);
       	if (!Settings.is24Hour){
 	      	if (hour > 12){
-	      		hour = hour - 12;
+	      		clockHour = hour - 12;
 	      		ampmString = "PM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
-	      	}
-	      	else if(hour == 0){
-	      		hour = 12;
+	      	}else if (hour == 12){
+	      		clockHour = hour;
+	      		ampmString = "PM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	} else if(hour == 0){
+	      		clockHour = 12;
+	      		ampmString = "AM";
+	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
+	      	} else{
+	      		clockHour = hour;
 	      		ampmString = "AM";
 	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
 	      	}
-	      	else{
-	      		ampmString = "AM";
-	      		dc.drawText(15,120,digitalMicro,ampmString,Graphics.TEXT_JUSTIFY_CENTER);
-	      	}
+      	} else{
+      		clockHour = hour;
       	}
-      	
-      	if (!Settings.is24Hour){
 
-      	}
-      	var timeString = Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]);
+		//draw big clock
+      	var timeString = Lang.format("$1$:$2$", [clockHour.format("%02d"), min.format("%02d")]);
       	dc.setColor(Application.getApp().getProperty("TimeColor"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(97,57,digitalBig,timeString,Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -110,20 +133,21 @@ class UnitView extends WatchUi.WatchFace {
       	//draw battery
       	var battery = System.getSystemStats().battery;
      	var batteryAngle = ((battery/100) * 265) - 95;
+     	
       	//draw battery arc
 		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,38);
+		dc.fillCircle(50,dc.getHeight()-60,38);
 		dc.setColor(Application.getApp().getProperty("BatteryBarColor"),Graphics.COLOR_TRANSPARENT);
-		dc.drawArc(50,dc.getHeight()-vertSpacing,34,1,batteryAngle,-95);
+		dc.drawArc(50,dc.getHeight()-60,34,1,batteryAngle,-95);
 		dc.setColor(Application.getApp().getProperty("BackgroundColor"),Graphics.COLOR_TRANSPARENT);
-		dc.fillCircle(50,dc.getHeight()-vertSpacing,34);
+		dc.fillCircle(50,dc.getHeight()-60,34);
 		
 		//draw battery number
 		if (battery < 20){
-      	dc.setColor(Application.getApp().getProperty("BatteryLowColor"),Graphics.COLOR_TRANSPARENT);
+      		dc.setColor(Application.getApp().getProperty("BatteryLowColor"),Graphics.COLOR_TRANSPARENT);
       	}
       	else{
-      	dc.setColor(Application.getApp().getProperty("BatteryColor"),Graphics.COLOR_TRANSPARENT);				   
+      		dc.setColor(Application.getApp().getProperty("BatteryColor"),Graphics.COLOR_TRANSPARENT);				   
 		}
       	dc.drawText(52,160,digitalSmall,battery.format("%d")+"%",Graphics.TEXT_JUSTIFY_CENTER);
       	
@@ -152,7 +176,6 @@ class UnitView extends WatchUi.WatchFace {
 		
 		//get data for data fields
       	retriveData();
-
 		
 		//draw DataField 1
       	dc.setColor(Application.getApp().getProperty("DataField1Color"),Graphics.COLOR_TRANSPARENT);
@@ -169,16 +192,18 @@ class UnitView extends WatchUi.WatchFace {
       	//Draw Datafield 3
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
-      	
-      	//System.println(data);
+
+      	//System.println(hour);
     }
     
     function onPartialUpdate(dc) {
-	    dc.setClip(200,70,30,80);
-	    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
-	    dc.clear();
-	    drawSeconds(dc);
-	    dc.clearClip();
+    	if(partialUpdatesAllowed){
+		    dc.setClip(200,70,30,80);
+		    dc.setColor(Graphics.COLOR_TRANSPARENT, Application.getApp().getProperty("BackgroundColor"));
+		    dc.clear();
+		    drawSeconds(dc);
+		    dc.clearClip();
+	    }
     }
     
     function drawSeconds(dc){
@@ -193,6 +218,7 @@ class UnitView extends WatchUi.WatchFace {
     
 	function retriveData(){
 	    var info = ActivityMonitor.getInfo();
+	    var activityInfo =  Activity.getActivityInfo();
       	var dataType = new[3]; //array size 3 that holds value for type of data to be displayed
       	
 		dataType[0] = Application.getApp().getProperty("DataField1");
@@ -201,7 +227,6 @@ class UnitView extends WatchUi.WatchFace {
       	
 		for(var i = 0; i < 3; i++){
 			if(dataType[i] == 1){ //steps
-				//data[i] = info.steps;
 				data[i] = info.steps;
 				dataIcon[i] = "C";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
@@ -250,7 +275,11 @@ class UnitView extends WatchUi.WatchFace {
 			else if(dataType[i] == 8){ //Heart Rate
 				if (ActivityMonitor has :getHeartRateHistory) {
 		  			var hrHist =  ActivityMonitor.getHeartRateHistory(1, true);
-		  			data[i] = hrHist.next().heartRate;
+		  			var currentHR = hrHist.next().heartRate;
+		  			if (currentHR >= 220){
+		  				currentHR = "--";
+		  			}
+		  			data[i] = currentHR;
 				} else {
 		  			data[i] = "NA";
 				}
@@ -258,33 +287,97 @@ class UnitView extends WatchUi.WatchFace {
 				dataIconColor[i] = Graphics.COLOR_RED;
 			}
 			else if(dataType[i] == 9){ //Altitude
-				if(ActivityMonitor.getInfo() has :altitude) {
-					altitude = info.altitude * 3.281; 
-					data[i] = altitude;
-				}
-				else{
+				if(Activity.getActivityInfo() has :altitude){
+					altitudeGet = activityInfo.altitude;
+						if(altitudeGet != null){
+							if(Settings.elevationUnits==System.UNIT_METRIC) {
+								altitude = altitudeGet;
+								data[i] = altitude.format("%.0f");
+							} else{
+								altitude = altitudeGet * 3.28084;
+								data[i] = altitude.format("%.0f");
+							}
+						} else{
+							data[i] =  altitude.format("%.0f");
+						}	
+				} else{
 					data[i] = "NA";
 				}
 				dataIcon[i] = "K";
 				dataIconColor[i] = Graphics.COLOR_GREEN;
 			}
 			else if(dataType[i] == 10){ //Pressure
-				if(ActivityMonitor.getInfo() has :ambientPressure) { 
-					data[i] = info.ambientPressure;
-				}
-				else{
+				if ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getPressureHistory)) {
+				    pressureGet = Toybox.SensorHistory.getPressureHistory(null);
+				    if (pressureGet != null){
+				    pressure = pressureGet.next();
+					data[i] = (pressure.data.toFloat() / 100.0).format("%.1f");
+					} else{
+					data[i] = "NA";
+				}  
+				} else{
 					data[i] = "NA";
 				}
 				dataIcon[i] = "L";
 				dataIconColor[i] = Graphics.COLOR_BLUE;
 			}
 			else if(dataType[i] == 11){ //UTC Time
-				//var UTCOffset = clockTime.timeZoneOffset;
-				//var UTChour = hour - UTCOffset;
-				//var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), clockTime.min.format("%02d")]);
-				data[i] = "NA";
+				
+				var UTCTimeString = Lang.format("$1$:$2$", [UTChour.format("%02d"), min.format("%02d")]);
+				data[i] = UTCTimeString;
 				dataIcon[i] = "H";
 				dataIconColor[i] = Graphics.COLOR_WHITE;
+			}
+			else if(dataType[i] == 12){ //Next sun event
+			
+				loc = Toybox.Activity.getActivityInfo().currentLocation; 
+				
+				if(loc !=null){
+					latlon = loc.toRadians();
+				}
+				
+				if(latlon != null){
+					var sc = new SunCalc(); 
+					var now = new Time.Moment(Time.now().value()); 
+						
+					var sunriseMoment = sc.calculate(now, latlon, SUNRISE); 
+					var sunsetMoment = sc.calculate(now, latlon, SUNSET); 
+						
+					var timeInfoSunrise = Gregorian.info(sunriseMoment, Time.FORMAT_SHORT); 
+					var timeInfoSunset = Gregorian.info(sunsetMoment, Time.FORMAT_SHORT); 
+					
+					var sunriseHour = timeInfoSunrise.hour;
+					var sunsetHour = timeInfoSunset.hour;
+					
+					if(hour > sunriseHour and hour - 1 < sunsetHour){
+						sunEvent = 1; //sunset
+					} else{
+						sunEvent = 2; //sunrise
+					} 
+				
+					if (!Settings.is24Hour){
+						if (sunriseHour > 12){
+		      				sunriseHour = sunriseHour - 12;
+		      			}
+		      			if (sunsetHour > 12){
+		      				sunsetHour = sunsetHour - 12;
+		      			}
+		      		}
+					
+					if(sunEvent == 1){
+						sunEventTime = Lang.format("$1$:$2$", [sunsetHour.format("%01d"), timeInfoSunset.min.format("%02d")]);
+						dataIcon[i] = "M";
+					} else {
+						sunEventTime = Lang.format("$1$:$2$", [sunriseHour.format("%01d"), timeInfoSunrise.min.format("%02d")]);
+						dataIcon[i] = "J";
+					} 
+				} else {
+					dataIcon[i] = "J";
+					sunEventTime = "NA";
+				}
+				
+				data[i] = sunEventTime;
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
 			}
 			else{
 				break;
@@ -292,7 +385,6 @@ class UnitView extends WatchUi.WatchFace {
 		} 
 		return data;
 	}
-    
 
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
