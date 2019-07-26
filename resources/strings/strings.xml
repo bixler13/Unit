@@ -47,6 +47,7 @@
     <string id="Pressure">Pressure</string>
     <string id="UTCTime">UTC Time</string>
     <string id="SunEvent">Sunrise/Sunset</string>
+    <string id="BatRem">Hours Battery Remaining</string>
     
     
 </strings>

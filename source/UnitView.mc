@@ -33,6 +33,11 @@ var loc = null;
 var sunEvent = 1;
 var sunEventTime;
 var Settings;
+var battery;
+var batteryOld = 0;
+var batHrRem = 0;
+var minSinceBat = 0;
+var lastMin = 0;
 
 class UnitView extends WatchUi.WatchFace {
 
@@ -131,7 +136,7 @@ class UnitView extends WatchUi.WatchFace {
       	dc.drawText(dc.getWidth()/2,7,digitalMicro,dayString,Graphics.TEXT_JUSTIFY_CENTER);
       	
       	//draw battery
-      	var battery = System.getSystemStats().battery;
+      	battery = System.getSystemStats().battery;
      	var batteryAngle = ((battery/100) * 265) - 95;
      	
       	//draw battery arc
@@ -193,7 +198,6 @@ class UnitView extends WatchUi.WatchFace {
       	dc.setColor(Application.getApp().getProperty("DataField3Color"),Graphics.COLOR_TRANSPARENT);
       	dc.drawText(200,190,digitalMicro,data[2],Graphics.TEXT_JUSTIFY_RIGHT);
 
-      	//System.println(hour);
     }
     
     function onPartialUpdate(dc) {
@@ -378,6 +382,22 @@ class UnitView extends WatchUi.WatchFace {
 				
 				data[i] = sunEventTime;
 				dataIconColor[i] = Graphics.COLOR_ORANGE;
+			}
+			else if(dataType[i] == 13){ //battery life remaining
+				
+				if(min > lastMin){
+					minSinceBat = minSinceBat + 1;
+				}
+				
+				if(battery < batteryOld){
+					batHrRem = battery * (minSinceBat/(batteryOld - battery))/60;					
+					minSinceBat = 0;
+				}
+				batteryOld = battery;
+				lastMin = min;
+				data[i] = batHrRem.format("%01d");
+				dataIconColor[i] = Graphics.COLOR_ORANGE;
+				dataIcon[i] = "M";
 			}
 			else{
 				break;
